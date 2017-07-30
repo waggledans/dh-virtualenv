@@ -34,6 +34,7 @@ class Deployment(object):
                  package,
                  extra_urls=[],
                  preinstall=[],
+                 preinstall_args=[],
                  pip_tool='pip',
                  upgrade_pip=False,
                  index_url=None,
@@ -67,6 +68,7 @@ class Deployment(object):
         self.local_bin_dir = os.path.join(self.package_dir, 'local', 'bin')
 
         self.preinstall = preinstall
+        self.preinstall_args = preinstall_args
         self.upgrade_pip = upgrade_pip
         self.extra_virtualenv_arg = extra_virtualenv_arg
         self.log_file = tempfile.NamedTemporaryFile()
@@ -86,6 +88,9 @@ class Deployment(object):
         self.pip_preinstall_prefix = [python, self.venv_bin('pip')]
         self.pip_prefix = [python, self.venv_bin(pip_tool)]
         self.pip_args = ['install']
+        self.pip_preinstall_args = ['install']
+        if self.preinstall_args:
+            self.pip_preinstall_args.extend(self.preinstall_args)
 
         if self.verbose:
             self.pip_args.append('-v')
@@ -107,6 +112,7 @@ class Deployment(object):
         return cls(package,
                    extra_urls=options.extra_index_url,
                    preinstall=options.preinstall,
+                   preinstall_args=options.preinstall_args,
                    pip_tool=options.pip_tool,
                    upgrade_pip=options.upgrade_pip,
                    index_url=options.index_url,
@@ -156,7 +162,8 @@ class Deployment(object):
         return os.path.abspath(os.path.join(self.bin_dir, binary_name))
 
     def pip_preinstall(self, *args):
-        return self.pip_preinstall_prefix + self.pip_args + list(args)
+        pip_args = self.pip_preinstall_args if self.preinstall_args else self.pip_args
+        return self.pip_preinstall_prefix + pip_args + list(args)
 
     def pip(self, *args):
         return self.pip_prefix + self.pip_args + list(args)

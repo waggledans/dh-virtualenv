@@ -112,6 +112,15 @@ few command line options:
    to parse ``setup.py``. This flag can be provided multiple times to
    pass multiple packages for pre-install.
 
+.. cmdoption:: --preinstall-args <argument>
+
+   Arguments to use with pip when installing "preinstalled
+   package" (given with ``--preinstall``) . This flag can be used if
+   package being pre-installed requires "special" command line
+   arguments but other packages do not.
+   This flag can be provided multiple times to
+   pass multiple arguments to use with pre-install command.
+
 .. cmdoption:: --pip-tool <exename>
 
    Executable that will be used to install requirements after the
