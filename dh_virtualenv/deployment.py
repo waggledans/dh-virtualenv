@@ -34,6 +34,8 @@ class Deployment(object):
                  package,
                  extra_urls=[],
                  preinstall=[],
+                 postinstall=[],
+                 postuninstall=[],
                  pip_tool='pip',
                  upgrade_pip=False,
                  index_url=None,
@@ -67,7 +69,11 @@ class Deployment(object):
         self.local_bin_dir = os.path.join(self.package_dir, 'local', 'bin')
 
         self.preinstall = preinstall
+        self.postinstall = postinstall
+        self.postuninstall = postuninstall
+        self.extras = extras
         self.upgrade_pip = upgrade_pip
+        self.upgrade_pip_to = upgrade_pip_to
         self.extra_virtualenv_arg = extra_virtualenv_arg
         self.log_file = tempfile.NamedTemporaryFile()
         self.verbose = verbose
@@ -86,9 +92,11 @@ class Deployment(object):
         self.pip_preinstall_prefix = [python, self.venv_bin('pip')]
         self.pip_prefix = [python, self.venv_bin(pip_tool)]
         self.pip_args = ['install']
+        self.pip_uninstall_args = ['uninstall', '-y']
 
         if self.verbose:
             self.pip_args.append('-v')
+            self.pip_uninstall_args.append('-v')
 
         if index_url:
             self.pip_args.append('--index-url={0}'.format(index_url))
@@ -107,6 +115,8 @@ class Deployment(object):
         return cls(package,
                    extra_urls=options.extra_index_url,
                    preinstall=options.preinstall,
+                   postinstall=options.postinstall,
+                   postuninstall=options.postuninstall,
                    pip_tool=options.pip_tool,
                    upgrade_pip=options.upgrade_pip,
                    index_url=options.index_url,
@@ -157,6 +167,14 @@ class Deployment(object):
 
     def pip_preinstall(self, *args):
         return self.pip_preinstall_prefix + self.pip_args + list(args)
+
+    def run_pip_postuninstall(self):
+        args = self.pip_prefix + self.pip_uninstall_args + self.postuninstall
+        subprocess.check_call(args)
+
+    def run_pip_postinstall(self):
+        args = self.pip_prefix + self.pip_args + ['--force-reinstall'] + self.postinstall
+        subprocess.check_call(args)
 
     def pip(self, *args):
         return self.pip_prefix + self.pip_args + list(args)

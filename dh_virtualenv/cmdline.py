@@ -92,6 +92,16 @@ def get_default_parser():
                       help=('package to install before processing '
                             'requirements.txt.'),
                       default=[])
+    parser.add_option('--preinstall', action='append',
+                      help=('package to install before processing '
+    parser.add_option('--postinstall', action='append', metavar='PACKAGE',
+                      help=('Package(s) to install after processing '
+                            'requirements.txt.'),
+                      default=[])
+    parser.add_option('--postuninstall', action='append', metavar='PACKAGE',
+                      help=('Package(s) to uninstall after processing '
+                            'requirements.txt.'),
+                      default=[])
     parser.add_option('--pip-tool', default='pip',
                       help="Executable that will be used to install "
                       "requirements after the preinstall stage. Usually "
